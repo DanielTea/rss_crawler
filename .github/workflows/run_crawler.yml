@@ -24,7 +24,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run RSS Crawler
-      run: python rss_crawler_module/rssReader.py
+      run: python rss_crawler_module/main_rss.py
 
     - name: Commit and push if it changed
       run: |
