@@ -39,9 +39,13 @@ def start_crawl_with_urls():
 
     links = load_rss_links_from_database()
 
+    from concurrent.futures import ThreadPoolExecutor
+
     total_crawled_links = 0
     rss_reader = RSSReader()
-    for url in links:
+
+    def process_url(url):
+        nonlocal total_crawled_links
         print(f"Starting crawl for {url}...")
         
         crawled_entries = rss_reader._fetch_rss_entries(url)
@@ -52,7 +56,10 @@ def start_crawl_with_urls():
                 print(f"Inserting crawled entry {entry['link']} into the database...")
                 if entry:
                     insert_rss_article(entry['publisher'], entry['title'], entry['link'], entry['published'], entry['language'], entry['crawl_date'])
-            
+
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        executor.map(process_url, links)
+
     print(f"Total crawled entries: {total_crawled_links}")
 
 if __name__ == "__main__":
