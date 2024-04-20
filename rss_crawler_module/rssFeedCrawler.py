@@ -1,5 +1,4 @@
 import csv
-import os
 import requests
 import yaml
 from bs4 import BeautifulSoup

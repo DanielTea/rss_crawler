@@ -43,12 +43,15 @@ def start_crawl_with_urls():
     rss_reader = RSSReader()
     for url in links:
         print(f"Starting crawl for {url}...")
+        
         crawled_entries = rss_reader._fetch_rss_entries(url)
-        print(f"Found {len(crawled_entries)} entries in {url}")
-        total_crawled_links += len(crawled_entries)
-        for entry in crawled_entries:
-            print(f"Inserting crawled entry {entry['link']} into the database...")
-            insert_rss_article(entry['publisher'], entry['title'], entry['link'], entry['published'], entry['language'], entry['crawl_date'])
+        if crawled_entries:
+            print(f"Found {len(crawled_entries)} entries in {url}")
+            total_crawled_links += len(crawled_entries)
+            for entry in crawled_entries:
+                print(f"Inserting crawled entry {entry['link']} into the database...")
+                if entry:
+                    insert_rss_article(entry['publisher'], entry['title'], entry['link'], entry['published'], entry['language'], entry['crawl_date'])
             
     print(f"Total crawled entries: {total_crawled_links}")
 

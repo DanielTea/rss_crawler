@@ -1,1 +1,36 @@
+name: Run RSS Crawler
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 23 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run RSS Crawler
+      run: python rss_crawler_module/rssReader.py
+
+    - name: Commit and push if it changed
+      run: |
+        git diff
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Update rss_links.db" -a || exit 0
+        git push
 
