@@ -34,3 +34,11 @@ jobs:
         git commit -m "Update rss_links.db" -a || exit 0
         git push
 
+    - name: Push changes if workflow is cancelled
+      if: cancelled()
+      run: |
+        git diff
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Update rss_links.db due to workflow cancellation" -a || exit 0
+        git push
