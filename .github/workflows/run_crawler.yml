@@ -28,19 +28,18 @@ jobs:
 
     - name: Commit and push if it changed
       run: |
-        git add rss_crawler_module/rss_links.db
+        git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -m "Update rss_links.db due to workflow cancellation" || exit 0
-        git push --force
-        git fsck --full
+        git push
+
 
     - name: Push changes if workflow is cancelled
       if: cancelled()
       run: |
-        git add rss_crawler_module/rss_links.db
+        git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -m "Update rss_links.db due to workflow cancellation" || exit 0
-        git push --force
-        git fsck --full
+        git push
