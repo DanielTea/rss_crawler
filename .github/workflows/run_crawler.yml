@@ -33,6 +33,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git commit -m "Update rss_links.db due to workflow cancellation" || exit 0
         git push --force
+        git fsck --full
 
     - name: Push changes if workflow is cancelled
       if: cancelled()
@@ -42,3 +43,4 @@ jobs:
         git config --local user.name "GitHub Action"
         git commit -m "Update rss_links.db due to workflow cancellation" || exit 0
         git push --force
+        git fsck --full
