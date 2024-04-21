@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout code
@@ -62,3 +62,18 @@ jobs:
         GIT_AUTHOR_EMAIL: action@github.com
         GIT_COMMITTER_NAME: GitHub Action
         GIT_COMMITTER_EMAIL: action@github.com
+
+    - name: Push changes if workflow runs in error
+      if: failure()
+      run: |
+        git add .
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Update rss_links.db due to workflow error" || exit 0
+        git push --force-with-lease
+      env:
+        GIT_AUTHOR_NAME: GitHub Action
+        GIT_AUTHOR_EMAIL: action@github.com
+        GIT_COMMITTER_NAME: GitHub Action
+        GIT_COMMITTER_EMAIL: action@github.com
+
