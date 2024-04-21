@@ -30,7 +30,11 @@ jobs:
 
     - name: Install Git LFS
       run: |
-        sudo apt-get install git-lfs
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew install git-lfs
+        else
+          sudo apt-get install git-lfs
+        fi
         git lfs install
 
     - name: Run RSS Crawler
