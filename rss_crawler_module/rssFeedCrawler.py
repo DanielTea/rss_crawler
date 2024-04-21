@@ -48,7 +48,7 @@ class WebCrawler:
         rss_links = set()
 
         for link in soup.find_all("a", href=True):
-            href = link['href']
+            href = requests.compat.urljoin(self.base_url, link['href'])
             if (href.endswith(('.rss', '.rss.xml', '.xml')) or 'rss' in href or 'feed' in href) and self._is_valid_url(href):
                 rss_links.add(href)
 

@@ -1,10 +1,13 @@
 link = "https://raw.githubusercontent.com/simevidas/web-dev-feeds/master/feeds.opml"
 
-#link = ""
+# link = "https://www.notebooksbilliger.de"
 
-import listparser as lp
-result = lp.parse(link)
-urls = []
-for feed in result.feeds:
-    urls.append(feed.url)
-print(urls)
+# link = "https://www.autocar.co.uk/car-news"
+
+from rss_crawler_module.rssFeedCrawler import WebCrawler
+
+crawler = WebCrawler(link)
+rss_links = crawler.crawl()
+
+for rss_link in rss_links:
+    print(rss_link)
