@@ -1,9 +1,9 @@
-name: ARTICLE Crawler
+name: LINK Crawler
 
 on:
   workflow_dispatch:
   # schedule:
-  #   # - cron: '0 * * * *'
+  #   - cron: '0 * * * *'
 
 permissions:
   contents: write
@@ -34,7 +34,7 @@ jobs:
         git lfs install
 
     - name: Run RSS Crawler
-      run: python rss_crawler_module/cronjob_crawl_rss_articles.py
+      run: python rss_crawler_module/cronjob_crawl_feed_links.py
 
     - name: Commit and push if it changed
       run: |

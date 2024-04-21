@@ -49,7 +49,7 @@ class WebCrawler:
 
         for link in soup.find_all("a", href=True):
             href = requests.compat.urljoin(self.base_url, link['href'])
-            if (href.endswith(('.rss', '.rss.xml', '.xml')) or 'rss' in href or 'feed' in href) and self._is_valid_url(href):
+            if ((href.endswith(('.rss', '.rss.xml', '.xml')) or 'rss' in href or 'feed' in href) and not ('.jpg' or '.png' or 'img' in href)) and self._is_valid_url(href):
                 rss_links.add(href)
 
             # Check for resource type links and recurse if necessary
@@ -103,7 +103,13 @@ class WebCrawler:
             url = self.base_url
 
         print("Crawling URL: ", url)
-        response = requests.get(url)
+
+        try:
+            response = requests.get(url, timeout=5)
+        except requests.exceptions.RequestException:
+            print("Error occurred while fetching the URL, skipping...")
+            return set()
+        
         if response.status_code != 200:
             print(f"Failed to fetch content from {url}")
             return set()
@@ -128,9 +134,9 @@ class WebCrawler:
             print("URL ends with .txt, extracting links from text")
             return self._extract_links_from_text(response.text)
 
-        if url.endswith('.pdf'):
-            print("URL ends with .pdf, parsing PDF content")
-            return self._parse_pdf_content(response.content)
+        # if url.endswith('.pdf'):
+        #     print("URL ends with .pdf, parsing PDF content")
+        #     return self._parse_pdf_content(response.content)
 
         # If it's none of the above, then parse as HTML
         print("URL does not match any known extensions, parsing as HTML")
