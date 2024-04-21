@@ -14,3 +14,4 @@ soupsieve==2.5
 tenacity==8.2.3
 urllib3==2.2.1
 webencodings==0.5.1
+listparser

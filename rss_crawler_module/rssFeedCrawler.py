@@ -5,9 +5,10 @@ from bs4 import BeautifulSoup
 import re
 from PyPDF2 import PdfFileReader
 from io import BytesIO
+import listparser as lp
 
 class WebCrawler:
-    def __init__(self, base_url, max_depth=3):
+    def __init__(self, base_url, max_depth=30):
         print("Initializing WebCrawler with base URL: ", base_url)
         self.base_url = base_url
         self.visited_urls = set()  # To keep track of visited URLs
@@ -32,16 +33,12 @@ class WebCrawler:
                 rss_links.add(link)
         return rss_links
 
-    def _parse_opml_content(self, content):
-        print("Parsing OPML content")
-        soup = BeautifulSoup(content, 'xml')  # Parse the content as XML
-        rss_links = set()
-
-        # Look for <outline> tags with an "xmlUrl" attribute
-        for outline in soup.find_all("outline", xmlUrl=True):
-            rss_link = outline['xmlUrl']
-            if self._is_valid_url(rss_link):  # Validate the URL
-                rss_links.add(rss_link)
+    def _parse_opml_content(self, url):
+        
+        result = lp.parse(url)
+        rss_links = []
+        for feed in result.feeds:
+            rss_links.append(feed.url)
         
         return rss_links
 
@@ -121,7 +118,11 @@ class WebCrawler:
 
         if url.endswith('.opml'):
             print("URL ends with .opml, parsing OPML content")
-            return self._parse_opml_content(response.text)
+            return self._parse_opml_content(url)
+        
+        if url.endswith('.xml'):
+            print("URL ends with .xml, parsing xml as OPML content")
+            return self._parse_opml_content(url)
 
         if url.endswith('.txt'):
             print("URL ends with .txt, extracting links from text")
