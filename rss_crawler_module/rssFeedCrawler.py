@@ -3,8 +3,8 @@ import requests
 import yaml
 from bs4 import BeautifulSoup
 import re
-from PyPDF2 import PdfFileReader
-from io import BytesIO
+import PyPDF2
+import io
 import listparser as lp
 
 class WebCrawler:
@@ -29,8 +29,15 @@ class WebCrawler:
             r'https?://[\w\d\-._~:/?#[\]@!$&\'()*+,;=%]+')
         links = re.findall(url_pattern, content)
         for link in links:
-            if (link.endswith(('.rss', '.rss.xml', '.xml')) or 'rss' in link or 'feed' in link) and self._is_valid_url(link):
-                rss_links.add(link)
+            if link.endswith(('.rss', '.rss.xml', '.xml', '.atom') or 'feed' in link or 'rss' in link) and not any(ext in link for ext in ['wlwmanifest',
+                                                                                                                                           'sitemap',
+                                                                                                                                           'osd.xml',
+                                                                                                                                           'feedback',
+                                                                                                                                           '.jpg', 
+                                                                                                                                           '.png', 
+                                                                                                                                           'img']):
+                if self._is_valid_url(link):
+                    rss_links.add(link)
         return rss_links
 
     def _parse_opml_content(self, url):
@@ -49,11 +56,24 @@ class WebCrawler:
 
         for link in soup.find_all("a", href=True):
             href = requests.compat.urljoin(self.base_url, link['href'])
-            if ((href.endswith(('.rss', '.rss.xml', '.xml')) or 'rss' in href or 'feed' in href) and not ('.jpg' or '.png' or 'img' in href)) and self._is_valid_url(href):
-                rss_links.add(href)
+            if (href.endswith(('.rss', '.rss.xml', '.xml', '.atom')) or 'feed' in href or 'rss' in href) and not any(ext in href for ext in ['feedback',
+                                                                                                                                             'sitemap',
+                                                                                                                                             'osd.xml',
+                                                                                                                                             'wlwmanifest',
+                                                                                                                                             '.jpg', 
+                                                                                                                                             '.png', 
+                                                                                                                                             'img']):
+                if self._is_valid_url(href):
+                    rss_links.add(href)
 
             # Check for resource type links and recurse if necessary
-            elif any(href.endswith(ext) for ext in ['.csv', '.yml', '.yaml', '.opml', '.txt', '.pdf']):
+            elif any(href.endswith(ext) for ext in ['.csv', 
+                                                    '.yml', 
+                                                    '.yaml', 
+                                                    '.opml', 
+                                                    '.txt', 
+                                                    # '.pdf'
+                                                    ]) or 'feed' in href or 'rss' in href:
                 if depth < self.max_depth and href not in self.visited_urls:  # Check if depth is within limit and URL is not visited
                     print("Found resource type link, recursing")
                     self.visited_urls.add(href)
@@ -78,10 +98,10 @@ class WebCrawler:
     def _parse_pdf_content(self, content):
         print("Parsing PDF content")
         rss_links = set()
-        pdf_file = PdfFileReader(BytesIO(content))
-        for page_num in range(pdf_file.getNumPages()):
-            page = pdf_file.getPage(page_num)
-            content = page.extractText()
+        pdf_file = PyPDF2.PdfReader(io.BytesIO(content))
+        for page_num in range(len(pdf_file.pages)):
+            page = pdf_file.pages[page_num]
+            content = page.extract_text()
             links = self._extract_links_from_text(content)
             rss_links.update(links)
         return rss_links
@@ -108,6 +128,7 @@ class WebCrawler:
             response = requests.get(url, timeout=5)
         except requests.exceptions.RequestException:
             print("Error occurred while fetching the URL, skipping...")
+            print(requests.exceptions.RequestException)
             return set()
         
         if response.status_code != 200:

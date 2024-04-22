@@ -1,9 +1,14 @@
 from rssFeedCrawler import WebCrawler
-from utilityDbScript import insert_website_to_database, insert_rss_link_to_database, load_websites_from_database, insert_rss_article, load_rss_links_from_database
-from rssReader import RSSReader
+from utilityDbScript import insert_website_to_database, insert_rss_link_to_database, load_websites_from_database, update_last_crawl_date, bulk_insert_websites_to_database
 from concurrent.futures import ThreadPoolExecutor
-from utilityDbScript import insert_rss_article
 import csv
+from datetime import datetime, timedelta
+from time import sleep
+
+INSERT_URLS = True
+INSERT_TOP_N_URLS = None
+MULTITHREAD = True
+N_DAYS_CRAWL = 30
 
 def start_crawl_with_urls():
     print("Starting crawl with URLs...")
@@ -28,18 +33,33 @@ def start_crawl_with_urls():
         #WEBSITES
         "https://www.autocar.co.uk/car-news"
     ]
-    for url in urls:
-        print(f"Inserting {url} into the database...")
-        insert_website_to_database(url)
 
-    urls = list(load_websites_from_database())
-
-
+    _urls = []
     with open('./top10milliondomains.csv', 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
         next(csv_reader)  # Skip the header
         for row in csv_reader:
-            urls.append("https://" + row[1])  # Append the domain to the urls list with https:// prefix
+            _urls.append("https://" + row[1])  # Append the domain to the urls list with https:// prefix
+
+    if INSERT_TOP_N_URLS:
+        urls = urls+_urls[-INSERT_TOP_N_URLS:]
+    else:
+        urls = urls+_urls
+
+
+    urls = [url for url in urls if "doubleclick.net" not in url]
+    urls = list(set(urls))
+
+
+    if INSERT_URLS:
+        print(f"Inserting urls...")
+        bulk_insert_websites_to_database(urls)
+
+    urls_dict_list = load_websites_from_database()
+
+    n_days_ago = datetime.now() - timedelta(days=N_DAYS_CRAWL)
+    urls_dict_list = [url_dict for url_dict in urls_dict_list if url_dict['last_crawl_date'] is None or datetime.strptime(url_dict['last_crawl_date'].split()[0], '%Y-%m-%d') <= n_days_ago]
+    urls = [url_dict['website'] for url_dict in urls_dict_list]
 
     total_crawled_links = 0
 
@@ -50,12 +70,19 @@ def start_crawl_with_urls():
         crawled_links = crawler.crawl()
         print(f"Found {len(crawled_links)} links in {url}")
         total_crawled_links += len(crawled_links)
+        update_last_crawl_date(url, datetime.now())
         for link in crawled_links:
             print(f"Inserting crawled link {link} into the database...")
             insert_rss_link_to_database(link)
 
-    with ThreadPoolExecutor(max_workers=100) as executor:
-        executor.map(process_url, urls)
+    if not MULTITHREAD:
+        for url in urls:
+            process_url(url)
+    else:
+        with ThreadPoolExecutor(max_workers=100) as executor:
+            executor.map(process_url, urls)
+
+    print(f"Total of {total_crawled_links} links crawled!")
 
 if __name__ == "__main__":
     start_crawl_with_urls()

@@ -23,7 +23,7 @@ def setup_database():
     with sqlite3.connect(SQLITE_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute(f'''CREATE TABLE IF NOT EXISTS {RSS_LINKS_TABLE_NAME} (link TEXT UNIQUE)''')
-        cursor.execute(f'''CREATE TABLE IF NOT EXISTS {RSS_FEED_WEBSITES_TABLE_NAME} (website TEXT UNIQUE)''')
+        cursor.execute(f'''CREATE TABLE IF NOT EXISTS {RSS_FEED_WEBSITES_TABLE_NAME} (website TEXT UNIQUE, last_crawl_date DATE)''')
         cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS {RSS_ARTICLE_TABLE_NAME} (
             publisher TEXT NOT NULL,
