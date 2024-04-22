@@ -11,6 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: macos-13
+    timeout-minutes: 720  # Set timeout to 12 hours
 
     steps:
     - name: Checkout code
@@ -80,4 +81,3 @@ jobs:
         GIT_AUTHOR_EMAIL: action@github.com
         GIT_COMMITTER_NAME: GitHub Action
         GIT_COMMITTER_EMAIL: action@github.com
-
