@@ -43,46 +43,46 @@ jobs:
         curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1SJQy0r5f8zLFZaqEF0RTuz0n1_PQJv-E" > /dev/null
         curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1SJQy0r5f8zLFZaqEF0RTuz0n1_PQJv-E" -o rss_crawler_module/rss_links.db
 
-    - name: Run RSS Crawler
-      run: python rss_crawler_module/cronjob_crawl_feed_links.py
+    # - name: Run RSS Crawler
+    #   run: python rss_crawler_module/cronjob_crawl_feed_links.py
 
-    - name: Commit and push if it changed
-      run: |
-        git add .
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Update rss_links.db scheduled" || exit 0
-        git push --force-with-lease
-      env:
-        GIT_AUTHOR_NAME: GitHub Action
-        GIT_AUTHOR_EMAIL: action@github.com
-        GIT_COMMITTER_NAME: GitHub Action
-        GIT_COMMITTER_EMAIL: action@github.com
+    # - name: Commit and push if it changed
+    #   run: |
+    #     git add .
+    #     git config --local user.email "action@github.com"
+    #     git config --local user.name "GitHub Action"
+    #     git commit -m "Update rss_links.db scheduled" || exit 0
+    #     git push --force-with-lease
+    #   env:
+    #     GIT_AUTHOR_NAME: GitHub Action
+    #     GIT_AUTHOR_EMAIL: action@github.com
+    #     GIT_COMMITTER_NAME: GitHub Action
+    #     GIT_COMMITTER_EMAIL: action@github.com
 
-    - name: Push changes if workflow is cancelled
-      if: cancelled()
-      run: |
-        git add .
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Update rss_links.db due to workflow cancellation" || exit 0
-        git push --force-with-lease
-      env:
-        GIT_AUTHOR_NAME: GitHub Action
-        GIT_AUTHOR_EMAIL: action@github.com
-        GIT_COMMITTER_NAME: GitHub Action
-        GIT_COMMITTER_EMAIL: action@github.com
+    # - name: Push changes if workflow is cancelled
+    #   if: cancelled()
+    #   run: |
+    #     git add .
+    #     git config --local user.email "action@github.com"
+    #     git config --local user.name "GitHub Action"
+    #     git commit -m "Update rss_links.db due to workflow cancellation" || exit 0
+    #     git push --force-with-lease
+    #   env:
+    #     GIT_AUTHOR_NAME: GitHub Action
+    #     GIT_AUTHOR_EMAIL: action@github.com
+    #     GIT_COMMITTER_NAME: GitHub Action
+    #     GIT_COMMITTER_EMAIL: action@github.com
 
-    - name: Push changes if workflow runs in error
-      if: failure()
-      run: |
-        git add .
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Update rss_links.db due to workflow error" || exit 0
-        git push --force-with-lease
-      env:
-        GIT_AUTHOR_NAME: GitHub Action
-        GIT_AUTHOR_EMAIL: action@github.com
-        GIT_COMMITTER_NAME: GitHub Action
-        GIT_COMMITTER_EMAIL: action@github.com
+    # - name: Push changes if workflow runs in error
+    #   if: failure()
+    #   run: |
+    #     git add .
+    #     git config --local user.email "action@github.com"
+    #     git config --local user.name "GitHub Action"
+    #     git commit -m "Update rss_links.db due to workflow error" || exit 0
+    #     git push --force-with-lease
+    #   env:
+    #     GIT_AUTHOR_NAME: GitHub Action
+    #     GIT_AUTHOR_EMAIL: action@github.com
+    #     GIT_COMMITTER_NAME: GitHub Action
+    #     GIT_COMMITTER_EMAIL: action@github.com
