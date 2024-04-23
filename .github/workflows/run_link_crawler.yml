@@ -43,6 +43,11 @@ jobs:
         curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1SJQy0r5f8zLFZaqEF0RTuz0n1_PQJv-E" > /dev/null
         curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1SJQy0r5f8zLFZaqEF0RTuz0n1_PQJv-E" -o rss_crawler_module/rss_links.db
 
+    - name: Download top10milliondomains.csv from Google Drive
+      run: |
+        curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=16VbCgsv15r38_viNOAa8ZNnmygv5zP7x" > /dev/null
+        curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=16VbCgsv15r38_viNOAa8ZNnmygv5zP7x" -o rss_crawler_module/top10milliondomains.csv
+
     # - name: Run RSS Crawler
     #   run: python rss_crawler_module/cronjob_crawl_feed_links.py
 
